@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using LobbyService;
 using PurrNet;
@@ -8,6 +9,12 @@ namespace Vanguard
 {
     public class ApplicationController : MonoBehaviour
     {
+        public static readonly List<string> LobbyKeys = new() { SessionHostIdKey, SessionConnectKey, 
+            LobbyService.LocalServer.LobbyKeys.NameKey,
+            LobbyService.LocalServer.LobbyKeys.ReadyKey
+        };
+        public static readonly List<string> MemberKeys = new();
+        
         public static ApplicationController Instance { get; private set; }
         
         [SerializeField] private NetworkManager networkManager;

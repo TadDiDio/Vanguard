@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using LobbyService.Procedure;
 using Steamworks;
 using UnityEngine;
+using Vanguard;
 
 namespace LobbyService.Example.Steam
 {

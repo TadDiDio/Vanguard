@@ -1,8 +1,10 @@
 using System;
 using System.Threading.Tasks;
 using LobbyService;
+using LobbyService.Example.Steam;
 using LobbyService.LocalServer;
 using PurrNet;
+using PurrNet.Steam;
 using PurrNet.Transports;
 using SceneService;
 using SessionService;
@@ -13,12 +15,20 @@ namespace Vanguard
 {
     public class Bootstrap : MonoBehaviour
     {
+        [SerializeField] private bool useSteam;
         [SerializeField] private NetworkManager networkManager;
         [SerializeField] private UDPTransport udpTransport;
+        [SerializeField] private SteamTransport steamTransport;
         [SerializeField] private LobbyRules rules;
+        [SerializeField] private GameObject SteamworksManager;
         
-        private void Start()
+        private void Awake()
         {
+            if (useSteam)
+            {
+                Instantiate(SteamworksManager).name = "Steam Manager";
+            }
+
             _ = InitializeAsync();
         }
 
@@ -26,27 +36,30 @@ namespace Vanguard
         {
             try
             {
-                if (!await LocalLobby.WaitForInitializationAsync(destroyCancellationToken)) return;
-                
-                // The provider depends on the API, so create this afterwards
-                var provider = new LocalProvider();
-
                 Lobby.SetRules(rules);
                 Lobby.SetPreInitStrategy(new DropPreInitStrategy());
-            
-                // REQUIRED: This is the only call needed to start the lobby system. 
-                // It must know which backend to use. This can be safely called again whenever you wish to hotswap backends.
-                Lobby.SetProvider(provider);
-            
                 SceneController.SetController(Scenes.BuildSceneController());
+
+                if (useSteam)
+                {
+                    var provider = new SteamProvider(ApplicationController.LobbyKeys, ApplicationController.MemberKeys);
+                    Lobby.SetProvider(provider);
+                    Session.SetProvider(new SteamworksSessionProvider(networkManager, steamTransport));
+                }
+                else
+                {
+                    if (!await LocalLobby.WaitForInitializationAsync(destroyCancellationToken)) return;
                 
+                    var provider = new LocalProvider();
+                    Lobby.SetProvider(provider);
+                    Session.SetProvider(new LocalTestProvider(networkManager, udpTransport));
+                }
+
                 await SceneController.Instance.LoadGroupAsync("Title");
-                
-                Session.SetProvider(new LocalTestProvider(networkManager, udpTransport));
             }
             catch (OperationCanceledException)
             {
-                // Expected if the operation is cancelled
+                // Expected if the operation is canceled
             }
             catch (Exception e)
             {

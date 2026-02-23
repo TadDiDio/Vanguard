@@ -1,6 +1,6 @@
 using System;
 
-namespace LobbyService.Example
+namespace Vanguard
 {
     // The SteamManager is designed to work with Steamworks.NET
     // This file is released into the public domain.
