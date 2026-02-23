@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using LobbyService.LocalServer;
 using TMPro;
+using Vanguard;
 using UnityEngine;
 using UnityEngine.UI;
 using Button = UnityEngine.UI.Button;
@@ -50,7 +51,8 @@ namespace LobbyService.Example
         public ScrollRect chatView;
         
         private LobbyInvite? _invite;
-        
+
+        public Button startGameButton;
         
         private Dictionary<LobbyMember, MemberCard> _members = new();
         private List<GameObject> _browserLobbies = new();
@@ -72,10 +74,14 @@ namespace LobbyService.Example
             slotsAvailableSlider.onValueChanged.AddListener(UpdateSearchCapacityText);
             slotsAvailableText.text = $"Slots available: {slotsAvailableSlider.value}";
             chatInput.onSubmit.AddListener(SendChat);
+            
+            startGameButton.onClick.AddListener(ApplicationController.Instance.StartGame);
         }
 
         private void OnDestroy()
         {
+            Lobby.DisconnectView(this);
+            
             createButton.onClick.RemoveAllListeners();
             friendsButton.onClick.RemoveAllListeners();
             capacitySlider.onValueChanged.RemoveAllListeners();
@@ -87,6 +93,7 @@ namespace LobbyService.Example
             searchButton.onClick.RemoveAllListeners();
             slotsAvailableSlider.onValueChanged.RemoveAllListeners();
             chatInput.onSubmit.RemoveAllListeners();
+            startGameButton.onClick.RemoveAllListeners();
         }
 
         private void SendChat(string message)
@@ -300,6 +307,7 @@ namespace LobbyService.Example
         private void SetViewIsOwner(bool isOwner)
         {
             closeButton.gameObject.SetActive(isOwner);
+            startGameButton.gameObject.SetActive(isOwner);
         }
         
         public void DisplayUpdateLobbyData(LobbyDataUpdate update)
@@ -322,6 +330,8 @@ namespace LobbyService.Example
             }
             public void Destroy()
             {
+                if (!Card) return;
+                
                 Card.GetComponentInChildren<Button>().onClick.RemoveAllListeners();
                 Object.Destroy(Card);
             }
@@ -332,7 +342,7 @@ namespace LobbyService.Example
         {
             _friendCards.ForEach(c => c.Destroy());
             _friendCards.Clear();
-            
+
             foreach (var friend in friends)
             {
                 var card = new FriendCard

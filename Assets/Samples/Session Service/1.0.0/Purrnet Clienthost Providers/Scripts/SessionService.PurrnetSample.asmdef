@@ -1,0 +1,11 @@
+{
+  "name": "SessionService.PurrnetSample",
+  "rootNamespace": "LobbyService.Example",
+  "references": [
+    "SessionService",
+    "PurrNet.Runtime",
+    "PurrNet.Steam.Runtime",
+    "Unity.InputSystem",
+    "com.rlabrecque.steamworks.net"
+  ]
+}

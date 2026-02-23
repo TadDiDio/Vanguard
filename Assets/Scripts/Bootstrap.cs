@@ -2,13 +2,19 @@ using System;
 using System.Threading.Tasks;
 using LobbyService;
 using LobbyService.LocalServer;
+using PurrNet;
+using PurrNet.Transports;
 using SceneService;
+using SessionService;
+using SessionService.Sample;
 using UnityEngine;
 
 namespace Vanguard
 {
     public class Bootstrap : MonoBehaviour
     {
+        [SerializeField] private NetworkManager networkManager;
+        [SerializeField] private UDPTransport udpTransport;
         [SerializeField] private LobbyRules rules;
         
         private void Start()
@@ -32,9 +38,11 @@ namespace Vanguard
                 // It must know which backend to use. This can be safely called again whenever you wish to hotswap backends.
                 Lobby.SetProvider(provider);
             
-                ISceneController sceneController = Scenes.BuildSceneController();
-
-                await sceneController.LoadGroupAsync("Title");
+                SceneController.SetController(Scenes.BuildSceneController());
+                
+                await SceneController.Instance.LoadGroupAsync("Title");
+                
+                Session.SetProvider(new LocalTestProvider(networkManager, udpTransport));
             }
             catch (OperationCanceledException)
             {

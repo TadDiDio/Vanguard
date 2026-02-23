@@ -19,6 +19,13 @@
       },
       "hash": "ad9a03b711ec63286440062b6f5092b8f12dd9e4"
     },
+    "com.radtad2.sessionservice": {
+      "version": "https://github.com/TadDiDio/Session-Service.git?path=Packages/com.radtad2.sessionservice#1.0.0",
+      "depth": 0,
+      "source": "git",
+      "dependencies": {},
+      "hash": "57b2ce2a630aecd942a4f69e9a9e3c582d3503d6"
+    },
     "com.rlabrecque.steamworks.net": {
       "version": "https://github.com/rlabrecque/Steamworks.NET.git?path=/com.rlabrecque.steamworks.net#2024.8.0",
       "depth": 0,

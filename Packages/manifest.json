@@ -2,6 +2,7 @@
   "dependencies": {
     "com.radtad2.lobbyservice": "https://github.com/TadDiDio/Lobby-Service.git?path=Packages/com.radtad2.lobbyservice#1.2.1",
     "com.radtad2.sceneservice": "https://github.com/TadDiDio/Scene-Service.git?path=Packages/com.radtad2.sceneservice#1.6.1",
+    "com.radtad2.sessionservice": "https://github.com/TadDiDio/Session-Service.git?path=Packages/com.radtad2.sessionservice#1.0.0",
     "com.rlabrecque.steamworks.net": "https://github.com/rlabrecque/Steamworks.NET.git?path=/com.rlabrecque.steamworks.net#2024.8.0",
     "com.unity.ai.navigation": "2.0.9",
     "com.unity.collab-proxy": "2.10.2",

@@ -24,3 +24,9 @@ MonoBehaviour:
       guid: 9bfb6cd009c95a0409f7698f159d8eba
     dependencies: []
     tags: []
+  - groupName: Game
+    activeScene:
+      asset: {fileID: 102900000, guid: c2f7a61af0c8b9643acbca4c894dcfa8, type: 3}
+      guid: c2f7a61af0c8b9643acbca4c894dcfa8
+    dependencies: []
+    tags: []
