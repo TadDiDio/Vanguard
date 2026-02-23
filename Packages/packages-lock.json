@@ -1,5 +1,31 @@
 {
   "dependencies": {
+    "com.radtad2.lobbyservice": {
+      "version": "https://github.com/TadDiDio/Lobby-Service.git?path=Packages/com.radtad2.lobbyservice#1.2.1",
+      "depth": 0,
+      "source": "git",
+      "dependencies": {
+        "com.unity.nuget.newtonsoft-json": "3.2.2"
+      },
+      "hash": "bc978642e960cd3faabf179f0512d8b7c58c4043"
+    },
+    "com.radtad2.sceneservice": {
+      "version": "https://github.com/TadDiDio/Scene-Service.git?path=Packages/com.radtad2.sceneservice#1.6.1",
+      "depth": 0,
+      "source": "git",
+      "dependencies": {
+        "com.unity.settings-manager": "2.0.1",
+        "com.unity.nuget.newtonsoft-json": "3.0.2"
+      },
+      "hash": "ad9a03b711ec63286440062b6f5092b8f12dd9e4"
+    },
+    "com.rlabrecque.steamworks.net": {
+      "version": "https://github.com/rlabrecque/Steamworks.NET.git?path=/com.rlabrecque.steamworks.net#2024.8.0",
+      "depth": 0,
+      "source": "git",
+      "dependencies": {},
+      "hash": "a2fc889ab2672981ec3e6225d551d86ce6923121"
+    },
     "com.unity.ai.navigation": {
       "version": "2.0.9",
       "depth": 0,
@@ -28,7 +54,7 @@
     },
     "com.unity.collections": {
       "version": "2.6.2",
-      "depth": 2,
+      "depth": 1,
       "source": "registry",
       "dependencies": {
         "com.unity.burst": "1.8.23",
@@ -87,9 +113,25 @@
         "com.unity.modules.uielements": "1.0.0"
       }
     },
+    "com.unity.multiplayer.playmode": {
+      "version": "2.0.1",
+      "depth": 0,
+      "source": "registry",
+      "dependencies": {
+        "com.unity.nuget.newtonsoft-json": "2.0.2"
+      },
+      "url": "https://packages.unity.com"
+    },
     "com.unity.nuget.mono-cecil": {
       "version": "1.11.6",
-      "depth": 3,
+      "depth": 1,
+      "source": "registry",
+      "dependencies": {},
+      "url": "https://packages.unity.com"
+    },
+    "com.unity.nuget.newtonsoft-json": {
+      "version": "3.2.2",
+      "depth": 1,
       "source": "registry",
       "dependencies": {},
       "url": "https://packages.unity.com"
@@ -133,6 +175,13 @@
       "dependencies": {},
       "url": "https://packages.unity.com"
     },
+    "com.unity.settings-manager": {
+      "version": "2.1.1",
+      "depth": 1,
+      "source": "registry",
+      "dependencies": {},
+      "url": "https://packages.unity.com"
+    },
     "com.unity.shadergraph": {
       "version": "17.3.0",
       "depth": 1,
@@ -154,7 +203,7 @@
     },
     "com.unity.test-framework.performance": {
       "version": "3.2.0",
-      "depth": 3,
+      "depth": 2,
       "source": "registry",
       "dependencies": {
         "com.unity.test-framework": "1.1.33",
@@ -192,6 +241,17 @@
         "com.unity.modules.jsonserialize": "1.0.0"
       },
       "url": "https://packages.unity.com"
+    },
+    "dev.purrnet.purrnet": {
+      "version": "https://github.com/PurrNet/PurrNet.git?path=/Assets/PurrNet#release",
+      "depth": 0,
+      "source": "git",
+      "dependencies": {
+        "com.unity.nuget.mono-cecil": "1.11.4",
+        "com.unity.nuget.newtonsoft-json": "3.2.1",
+        "com.unity.collections": "2.6.2"
+      },
+      "hash": "1d4124e49afee76d4a0ded6d027567a30c9e897d"
     },
     "com.unity.modules.accessibility": {
       "version": "1.0.0",

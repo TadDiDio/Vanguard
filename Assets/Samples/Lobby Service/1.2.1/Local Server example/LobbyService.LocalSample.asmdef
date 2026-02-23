@@ -1,0 +1,10 @@
+{
+  "name": "LobbyService.LocalSample",
+  "rootNamespace": "LobbyService.Example",
+  "references": [
+    "LobbyService",
+    "Unity.TextMeshPro"
+  ],
+  "includePlatforms": [],
+  "excludePlatforms": []
+}
