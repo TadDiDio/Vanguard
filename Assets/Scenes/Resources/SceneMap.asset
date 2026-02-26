@@ -1,0 +1,32 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 65591a72f04d4f6fa4016c74a37b4bf4, type: 3}
+  m_Name: SceneMap
+  m_EditorClassIdentifier: SceneService::SceneService.SceneMap
+  ConfigName: Main
+  LoadBootstrapperFirst: 1
+  BootstrapScene:
+    asset: {fileID: 102900000, guid: 2c66d53ff9f5dc548ad287c843769af5, type: 3}
+    guid: 2c66d53ff9f5dc548ad287c843769af5
+  Groups:
+  - groupName: Title
+    activeScene:
+      asset: {fileID: 102900000, guid: 56241ab7f554f8d4f8c902bf7584769f, type: 3}
+      guid: 56241ab7f554f8d4f8c902bf7584769f
+    dependencies: []
+    tags: []
+  - groupName: Game
+    activeScene:
+      asset: {fileID: 102900000, guid: c2f7a61af0c8b9643acbca4c894dcfa8, type: 3}
+      guid: c2f7a61af0c8b9643acbca4c894dcfa8
+    dependencies: []
+    tags: []
