@@ -30,7 +30,6 @@ namespace Vanguard
         [SerializeField] private TMP_Text invitedPanelText;
 
         private List<PlayerCard> _playerCards = new();
-        private const string TeamDelimiter = ":";
         
         
         private void Awake()
@@ -57,8 +56,7 @@ namespace Vanguard
 
         private void OnStartButton()
         {
-            Debug.Log("Starting game!");
-            // ApplicationController.Instance.StartGame();
+            ApplicationController.Instance.StartGame();
         }
 
         private void OnLeaveButton()
@@ -100,20 +98,14 @@ namespace Vanguard
         
         public void DisplayExistingLobby(IReadonlyLobbyModel snapshot)
         {
-            if (!snapshot.InLobby)
-            {
-                return;
-            }
-            
-            var alienTeamRaw = snapshot.LobbyData.GetOrDefault(ApplicationController.AlienTeamKey, "");
-            var alienTeam  = LinqUtility.ToHashSet(alienTeamRaw.Split(TeamDelimiter));
+            if (!snapshot.InLobby) return;
             
             foreach (var member in snapshot.Members)
             {
-                bool isMarine = !alienTeam.Contains(member.Id.ToString());
+                Team team = TeamHelper.GetMemberTeam(member);
                 bool isOwner = snapshot.Owner == member;
                 
-                AddMemberToView(member, isMarine, isOwner);
+                AddMemberToView(member, team, isOwner);
             }
             
             SetLocalIsOwner(Lobby.IsOwner);
@@ -129,59 +121,45 @@ namespace Vanguard
                 return;
             }
 
-            AddMemberToTeamSafe(result.Owner, AddToMarinesNext());
+            AddMemberToTeamSafe(result.Owner, GetNextTeamToAddTo());
             DisplayEnter(result.Members);
         }
 
-        private void AddMemberToTeamSafe(LobbyMember member, bool marines)
+        private void AddMemberToTeamSafe(LobbyMember member, Team team)
         {
             if (!Lobby.IsOwner) return;
-            
-            string key = marines ? ApplicationController.MarineTeamKey : ApplicationController.AlienTeamKey;
-            string list = Lobby.GetLobbyDataOrDefault(key, "");
 
-            var newList = $"{list}{member.Id}{TeamDelimiter}";
-            Lobby.SetLobbyData(key, newList);
+            TeamHelper.AddMemberToTeam(member, team);
         }
         
-        private void RemoveMemberFromTeamSafe(LobbyMember member, bool marines)
+        private void RemoveMemberFromTeamSafe(LobbyMember member, Team team)
         {
             if (!Lobby.IsOwner) return;
 
-            string key = marines ? ApplicationController.MarineTeamKey : ApplicationController.AlienTeamKey;
-            
-            string list = Lobby.GetLobbyDataOrDefault(key, "");
-
-            list = list.Replace(member.Id.ToString(), "");
-            list = list.Replace($"{TeamDelimiter}{TeamDelimiter}", TeamDelimiter);
-            if (list == TeamDelimiter) list = "";
-
-            Lobby.SetLobbyData(key, list);
+            TeamHelper.RemoveMemberFromTeam(member, team);
         }
 
-        private bool AddToMarinesNext()
+        private Team GetNextTeamToAddTo()
         {
-            string aliensTeam = Lobby.GetLobbyDataOrDefault(ApplicationController.AlienTeamKey, "");
-            string marinesTeam = Lobby.GetLobbyDataOrDefault(ApplicationController.MarineTeamKey, "");
+            var marineCount = TeamHelper.GetTeamCount(Team.Marines);
+            var alienCount = TeamHelper.GetTeamCount(Team.Aliens);
             
-            var aliens = LinqUtility.ToHashSet(aliensTeam.Split(TeamDelimiter));
-            var marines = LinqUtility.ToHashSet(marinesTeam.Split(TeamDelimiter));
-            
-            return aliens.Count >= marines.Count;
+            return alienCount >= marineCount ? Team.Marines : Team.Aliens;
         }
 
         private void SwapTeamSafe(LobbyMember member)
         {
             if (!Lobby.IsOwner) return;
          
-            bool isMarine = IsMemberMarine(member);
+            var team = TeamHelper.GetMemberTeam(member);
+            var otherTeam = team == Team.Marines ? Team.Aliens : Team.Marines;
             
-            RemoveMemberFromTeamSafe(member, isMarine);
-            AddMemberToTeamSafe(member, !isMarine);
-            SwapTeamView(member, !isMarine);
+            RemoveMemberFromTeamSafe(member, team);
+            AddMemberToTeamSafe(member, otherTeam);
+            SwapTeamView(member, otherTeam);
         }
 
-        private void SwapTeamView(LobbyMember member, bool toMarines)
+        private void SwapTeamView(LobbyMember member, Team team)
         {
             var card = GetUserCard(member);
 
@@ -191,8 +169,8 @@ namespace Vanguard
                 return;
             }
             
-            card.SetTeam(toMarines);
-            card.transform.SetParent(toMarines ? marineCardContainer : alienCardContainer);
+            card.SetTeam(team);
+            card.transform.SetParent(team == Team.Marines ? marineCardContainer : alienCardContainer);
         }
         
         
@@ -216,7 +194,7 @@ namespace Vanguard
         {
             foreach (var member in members)
             {
-                AddMemberToView(member, IsMemberMarine(member), member == Lobby.Model.Owner);
+                AddMemberToView(member, TeamHelper.GetMemberTeam(member), member == Lobby.Model.Owner);
             }
             
             SetLocalIsOwner(Lobby.IsOwner);
@@ -225,21 +203,12 @@ namespace Vanguard
             lobbyPanel.SetActive(true);
         }
 
-        private bool IsMemberMarine(LobbyMember member)
+        private void AddMemberToView(LobbyMember member, Team team, bool isOwner)
         {
-            string aliensString = Lobby.GetLobbyDataOrDefault(ApplicationController.AlienTeamKey, "");
-            
-            var aliens = aliensString.Split(TeamDelimiter);
-            
-            return !aliens.Contains(member.Id.ToString());
-        }
-
-        private void AddMemberToView(LobbyMember member, bool isMarine, bool isOwner)
-        {
-            var parent = isMarine ? marineCardContainer : alienCardContainer;
+            var parent = team == Team.Marines ? marineCardContainer : alienCardContainer;
 
             var card = Instantiate(playerCardPrefab, parent);
-            card.Init(member, isMarine, isOwner);
+            card.Init(member, team, isOwner);
 
             if (Lobby.IsOwner)
             {
@@ -303,10 +272,10 @@ namespace Vanguard
         
         public void DisplayOtherMemberJoined(MemberJoinedInfo info)
         {
-            bool willBeMarine = AddToMarinesNext();
+            Team team = GetNextTeamToAddTo();
             
-            AddMemberToView(info.Member, willBeMarine, false);
-            AddMemberToTeamSafe(info.Member, willBeMarine);
+            AddMemberToView(info.Member, team, false);
+            AddMemberToTeamSafe(info.Member, team);
         }
 
         public void DisplayOtherMemberLeft(LeaveInfo info)
@@ -315,8 +284,8 @@ namespace Vanguard
             if (!GetUserCard(info.Member)) return;
             
             // Brute force try both
-            RemoveMemberFromTeamSafe(info.Member, true);
-            RemoveMemberFromTeamSafe(info.Member, false);
+            RemoveMemberFromTeamSafe(info.Member, Team.Marines);
+            RemoveMemberFromTeamSafe(info.Member, Team.Aliens);
 
             var match = GetUserCard(info.Member);
             
@@ -349,18 +318,12 @@ namespace Vanguard
 
         public void DisplayUpdateLobbyData(LobbyDataUpdate update)
         {
-            string aliensString = Lobby.GetLobbyDataOrDefault(ApplicationController.AlienTeamKey, "");
-            var aliens = aliensString.Split(TeamDelimiter);
-            
             foreach (var card in _playerCards)
             {
-                if (card.IsMarine() && aliens.Contains(card.GetUser().Id.ToString()))
+                var actualTeam = TeamHelper.GetMemberTeam(card.GetUser());
+                if (card.GetTeam() != actualTeam)
                 {
-                    SwapTeamView(card.GetUser(), false);
-                }
-                if (!card.IsMarine() && !aliens.Contains(card.GetUser().Id.ToString()))
-                {
-                    SwapTeamView(card.GetUser(), true);
+                    SwapTeamView(card.GetUser(), actualTeam);
                 }
             }
         }

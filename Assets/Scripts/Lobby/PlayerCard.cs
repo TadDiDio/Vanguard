@@ -22,7 +22,7 @@ namespace Vanguard
         [SerializeField] private TMP_Text nameText;
         
         private LobbyMember _user;
-        private bool _isMarine;
+        private Team _team;
         
         public event Action<PlayerCard> Promoted;
         public event Action<PlayerCard> Kicked;
@@ -49,22 +49,23 @@ namespace Vanguard
         private void OnKick() => Kicked?.Invoke(this);
         private void OnPromote() =>Promoted?.Invoke(this);
 
-        public void Init(LobbyMember user, bool marine, bool isOwner)
+        public void Init(LobbyMember user, Team team, bool isOwner)
         {
             _user = user;
             nameText.text = user.DisplayName;
-            SetTeam(marine);
+            SetTeam(team);
             SetOwner(isOwner);
         }
 
         public LobbyMember GetUser() => _user;
 
-        public bool IsMarine() => _isMarine;
-        public void SetTeam(bool marines)
+        public Team GetTeam() => _team;
+        
+        public void SetTeam(Team team)
         {
-            _isMarine = marines;
+            _team = team;
             
-            if (marines)
+            if (team == Team.Marines)
             {
                 swapImage.color = Color.blue;
                 promoteImage.color = Color.blue;

@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using LobbyService;
 using TMPro;
@@ -15,9 +16,16 @@ public class FriendsView : MonoBehaviour, IFriendView
     
     private void Start()
     {
+        Lobby.Friends.StartPolling(Lobby.Rules.FriendDiscoveryFilter, Lobby.Rules.FriendPollingRateSeconds);
         Lobby.ConnectView(this);
         friendsContainer.gameObject.SetActive(false);
         showFriends.onClick.AddListener(ShowFriends);
+    }
+
+    private void OnDestroy()
+    {
+        Lobby.Friends.StopPolling();
+        _friendCards.Clear();
     }
 
     private void ShowFriends()

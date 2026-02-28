@@ -148,7 +148,6 @@ namespace Vanguard
         }
         private void ListenForConnection(ConnectionState state, TaskCompletionSource<bool> tcs)
         {
-            Debug.Log($"Connection state changed to {state}");
             switch (state)
             {
                 case ConnectionState.Connected:

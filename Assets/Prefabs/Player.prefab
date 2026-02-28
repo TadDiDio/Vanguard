@@ -86,6 +86,7 @@ MonoBehaviour:
   cameraSocket: {fileID: 6518626791391446513}
   cameraOffset: {x: 0, y: 13, z: -4.5}
   cameraAngle: 75
+  renderer: {fileID: 3848380968997709418}
 --- !u!114 &3461170952968200518
 MonoBehaviour:
   m_ObjectHideFlags: 0

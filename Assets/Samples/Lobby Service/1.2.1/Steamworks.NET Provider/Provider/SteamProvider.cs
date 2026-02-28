@@ -32,8 +32,6 @@ namespace LobbyService.Example.Steam
         {
             _lobbyKeys = lobbyKeys;
             _memberKeys = memberKeys;
-
-            
         }
 
         public override void Initialize()
@@ -143,6 +141,7 @@ namespace LobbyService.Example.Steam
             if (!ValidSteamId(lobbyId, out var steamId)) return null;
 
             var data = new Metadata();
+            
             foreach (var key in _lobbyKeys)
             {
                 var value = SteamMatchmaking.GetLobbyData(steamId, key);

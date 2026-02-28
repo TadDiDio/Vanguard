@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using LobbyService;
 using PurrNet;
@@ -9,6 +10,10 @@ namespace Vanguard
 {
     public class ApplicationController : MonoBehaviour
     {
+        public static readonly string AlienTeamKey  = "team.alien";
+        public static readonly string MarineTeamKey = "team.marine";
+        public static readonly string LobbyToGameId = "session.idmap";
+        
         public static readonly List<string> LobbyKeys = new() 
         { 
             SessionHostIdKey, 
@@ -18,18 +23,21 @@ namespace Vanguard
             LobbyService.LocalServer.LobbyKeys.NameKey,
             LobbyService.LocalServer.LobbyKeys.ReadyKey,
         };
-        public static readonly List<string> MemberKeys = new();
+        
+        public static readonly List<string> MemberKeys = new()
+        {
+            LobbyToGameId    
+        };
         
         public static ApplicationController Instance { get; private set; }
         
         [SerializeField] private NetworkManager networkManager;
 
         private TaskCompletionSource<bool> startGameTcs;
-
+        
         private const string SessionHostIdKey = "session.hostid";
-        private const string SessionConnectKey = "session.hostid";
-        public static readonly string AlienTeamKey  = "team.alien";
-        public static readonly string MarineTeamKey = "team.marine";
+        private const string SessionConnectKey = "session.connect";
+       
         
         private void Awake()
         {
@@ -55,6 +63,10 @@ namespace Vanguard
             {
                 TimeoutSeconds = 5
             };
+
+            startGameTcs = new TaskCompletionSource<bool>();
+
+            networkManager.onPlayerJoined += OnPlayerJoined;
             
             var createResult = await Session.CreateSessionAsync(request, destroyCancellationToken);
 
@@ -64,9 +76,6 @@ namespace Vanguard
                 return;
             }
 
-            networkManager.onPlayerJoined += OnPlayerJoined;
-            startGameTcs = new TaskCompletionSource<bool>();
-            
             Lobby.SetLobbyData(SessionHostIdKey, createResult.SessionDetails.ServerAddress);
             Lobby.SetLobbyData(SessionConnectKey, "True");
             
@@ -78,12 +87,14 @@ namespace Vanguard
             // Continue to game even without all expected players
             await SceneController.Instance.LoadGroupAsync("Game", new UnityToPurrnetSceneManager(networkManager));
         }
-
+        
         private void OnPlayerJoined(PlayerID id, bool isReconnect, bool asServer)
         {
-            Debug.Log($"Player {id} joined the lobby. Connected players: {networkManager.playerCount}, Lobby count: {Lobby.Model.Members.Count}");
+            if (!asServer) return;
             
-            if (networkManager.playerCount >= Lobby.Model.Members.Count) startGameTcs.SetResult(true);
+            Debug.Log($"Player {id} joined the game. Connected players: {networkManager.playerCount}, Lobby count: {Lobby.Model.Members.Count}");
+            
+            if (networkManager.playerCount >= Lobby.Model.Members.Count) startGameTcs.TrySetResult(true);
         }
 
         private void OnLobbyDataUpdated(LobbyDataUpdate update)
