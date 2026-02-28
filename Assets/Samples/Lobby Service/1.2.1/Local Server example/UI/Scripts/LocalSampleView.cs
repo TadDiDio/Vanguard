@@ -75,7 +75,7 @@ namespace LobbyService.Example
             slotsAvailableText.text = $"Slots available: {slotsAvailableSlider.value}";
             chatInput.onSubmit.AddListener(SendChat);
             
-            startGameButton.onClick.AddListener(ApplicationController.Instance.StartGame);
+            startGameButton.onClick.AddListener(ApplicationController.Instance.TransitionToGame);
         }
 
         private void OnDestroy()

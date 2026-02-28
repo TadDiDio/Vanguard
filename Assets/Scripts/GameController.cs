@@ -73,8 +73,7 @@ namespace Vanguard
             {
                 return;
             }
-            
-            _sceneLoadedTcs.SetResult(true);
+            _sceneLoadedTcs.TrySetResult(true);
         }
     }
 }

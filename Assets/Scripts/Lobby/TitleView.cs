@@ -15,8 +15,8 @@ public class TitleView : MonoBehaviour
         
         createLobbyButton.onClick.AddListener(Create);
         
-        titlePanel.SetActive(true);
-        lobbyPanel.SetActive(false);
+        titlePanel.SetActive(!Lobby.Model.InLobby);
+        lobbyPanel.SetActive(Lobby.Model.InLobby);
     }
 
     private void Create()

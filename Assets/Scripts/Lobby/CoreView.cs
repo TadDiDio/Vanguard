@@ -52,23 +52,27 @@ namespace Vanguard
             startButton.onClick.RemoveAllListeners();
             leaveButton.onClick.RemoveAllListeners();
             closeButton.onClick.RemoveAllListeners();
+
+            Lobby.DisconnectView(this);
         }
 
         private void OnStartButton()
         {
-            ApplicationController.Instance.StartGame();
+            ApplicationController.Instance.TransitionToGame();
         }
 
         private void OnLeaveButton()
         {
             Lobby.Leave();
             SwapToTitle();
+            ApplicationController.Instance.AllowStartGame();
         }
 
         private void OnCloseButton()
         {
             Lobby.CloseAndLeave();
             SwapToTitle();
+            ApplicationController.Instance.AllowStartGame();
         }
 
         private void SwapToTitle()
@@ -91,9 +95,6 @@ namespace Vanguard
             _playerCards.Clear();
 
             SetLocalIsOwner(false);
-            
-            titlePanel.SetActive(true);
-            lobbyPanel.SetActive(false);
         }
         
         public void DisplayExistingLobby(IReadonlyLobbyModel snapshot)

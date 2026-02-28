@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using LobbyService;
 using TMPro;
@@ -26,6 +25,7 @@ public class FriendsView : MonoBehaviour, IFriendView
     {
         Lobby.Friends.StopPolling();
         _friendCards.Clear();
+        Lobby.DisconnectView(this);
     }
 
     private void ShowFriends()

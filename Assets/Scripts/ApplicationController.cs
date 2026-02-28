@@ -1,10 +1,11 @@
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 using LobbyService;
 using PurrNet;
+using PurrNet.Modules;
 using SessionService;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 namespace Vanguard
 {
@@ -13,6 +14,8 @@ namespace Vanguard
         public static readonly string AlienTeamKey  = "team.alien";
         public static readonly string MarineTeamKey = "team.marine";
         public static readonly string LobbyToGameId = "session.idmap";
+
+        private bool _allowStartGame = true;
         
         public static readonly List<string> LobbyKeys = new() 
         { 
@@ -43,7 +46,7 @@ namespace Vanguard
         {
             if (Instance && Instance != this)
             {
-                Debug.LogError("Multiple GameControllers found!");
+                Debug.LogError("Multiple application controllers found!");
                 return;
             }
 
@@ -52,13 +55,15 @@ namespace Vanguard
             Lobby.OnLobbyDataUpdated += OnLobbyDataUpdated;
         }
 
-        public void StartGame()
+        public void TransitionToGame()
         {
             _ = StartGameAsync();
         }
 
         private async Task StartGameAsync()
         {
+            if (!_allowStartGame) return;
+            
             var request = new SessionCreateRequest
             {
                 TimeoutSeconds = 5
@@ -69,13 +74,14 @@ namespace Vanguard
             networkManager.onPlayerJoined += OnPlayerJoined;
             
             var createResult = await Session.CreateSessionAsync(request, destroyCancellationToken);
-
             if (!createResult.Connected)
             {
                 Debug.Log("Failed to create session!");
                 return;
             }
-
+            
+            networkManager.ResetOriginalScene(SceneManager.GetActiveScene());
+                
             Lobby.SetLobbyData(SessionHostIdKey, createResult.SessionDetails.ServerAddress);
             Lobby.SetLobbyData(SessionConnectKey, "True");
             
@@ -83,15 +89,21 @@ namespace Vanguard
             await Task.WhenAny(timeout, startGameTcs.Task);
             
             networkManager.onPlayerJoined -= OnPlayerJoined;
-            
+                
             // Continue to game even without all expected players
-            await SceneController.Instance.LoadGroupAsync("Game", new UnityToPurrnetSceneManager(networkManager));
+            PurrSceneSettings settings = new()
+            {
+                isPublic = true,
+                mode = LoadSceneMode.Single
+            };
+            
+            await networkManager.sceneModule.LoadSceneAsync("Game", settings);
         }
         
         private void OnPlayerJoined(PlayerID id, bool isReconnect, bool asServer)
         {
-            if (!asServer) return;
-            
+            if (id.isServer) return;
+
             Debug.Log($"Player {id} joined the game. Connected players: {networkManager.playerCount}, Lobby count: {Lobby.Model.Members.Count}");
             
             if (networkManager.playerCount >= Lobby.Model.Members.Count) startGameTcs.TrySetResult(true);
@@ -121,15 +133,40 @@ namespace Vanguard
                 }
             };
 
-            await SceneController.Instance.BeginExternalControl();
-            
             var result = await Session.JoinSessionAsync(request, destroyCancellationToken);
 
             if (!result.Connected)
             {
                 Debug.LogError("Failed to join session!");
-                await SceneController.Instance.EndExternalControl("Title");
             }
+        }
+
+        public void TransitionToTitle()
+        {
+            Lobby.SetLobbyData(SessionConnectKey, "False");
+            _ = StopGameAsync();
+        }
+
+        private async Task StopGameAsync()
+        {
+            PurrSceneSettings settings = new()
+            {
+                isPublic = true,
+                mode = LoadSceneMode.Single,
+            };
+            
+            DisallowStartGame();
+            await networkManager.sceneModule.LoadSceneAsync("Lobby", settings);
+        }
+
+        public void AllowStartGame()
+        {
+            _allowStartGame = true;
+        }
+
+        public void DisallowStartGame()
+        {
+            _allowStartGame = false;
         }
     }
 }
